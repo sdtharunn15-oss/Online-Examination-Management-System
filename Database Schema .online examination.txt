@@ -1,0 +1,242 @@
+# Database Schema - Online Examination Management System
+
+## 1. Users Table
+
+**Table Name:** `users`
+
+| Column   | Type    | Constraint      |
+| -------- | ------- | --------------- |
+| id       | Integer | Primary Key     |
+| name     | String  | Not Null        |
+| email    | String  | Unique          |
+| password | String  | Not Null        |
+| role     | String  | Admin / Student |
+
+Purpose:
+
+* Stores login details
+* Handles JWT authentication
+* Supports role-based access
+
+---
+
+# 2. Students Table
+
+**Table Name:** `students`
+
+| Column | Type    | Constraint  |
+| ------ | ------- | ----------- |
+| id     | Integer | Primary Key |
+| name   | String  | Not Null    |
+| email  | String  | Unique      |
+
+Relationship:
+
+```
+One Student
+     |
+     |
+Many Exam Attempts
+```
+
+---
+
+# 3. Exams Table
+
+**Table Name:** `exams`
+
+| Column    | Type    | Constraint   |
+| --------- | ------- | ------------ |
+| id        | Integer | Primary Key  |
+| title     | String  | Not Null     |
+| category  | String  | Not Null     |
+| duration  | Integer | > 0          |
+| is_active | Boolean | Default True |
+
+Relationship:
+
+```
+One Exam
+     |
+     |
+Many Questions
+```
+
+---
+
+# 4. Questions Table
+
+**Table Name:** `questions`
+
+| Column         | Type    | Constraint  |
+| -------------- | ------- | ----------- |
+| id             | Integer | Primary Key |
+| exam_id        | Integer | Foreign Key |
+| question_text  | String  | Not Null    |
+| option_a       | String  | Not Null    |
+| option_b       | String  | Not Null    |
+| option_c       | String  | Not Null    |
+| option_d       | String  | Not Null    |
+| correct_answer | String  | Not Null    |
+
+Foreign Key:
+
+```
+questions.exam_id
+        |
+        |
+      exams.id
+```
+
+---
+
+# 5. Attempts Table
+
+**Table Name:** `attempts`
+
+| Column     | Type    | Constraint          |
+| ---------- | ------- | ------------------- |
+| id         | Integer | Primary Key         |
+| student_id | Integer | Foreign Key         |
+| exam_id    | Integer | Foreign Key         |
+| score      | Integer | Default 0           |
+| status     | String  | Started / Completed |
+
+Relationships:
+
+```
+Student
+   |
+   |
+Many Attempts
+
+
+Exam
+   |
+   |
+Many Attempts
+```
+
+---
+
+# 6. Answers Table
+
+**Table Name:** `answers`
+
+| Column          | Type    | Constraint  |
+| --------------- | ------- | ----------- |
+| id              | Integer | Primary Key |
+| attempt_id      | Integer | Foreign Key |
+| question_id     | Integer | Foreign Key |
+| selected_answer | String  | Not Null    |
+
+Relationship:
+
+```
+One Attempt
+      |
+      |
+ Many Answers
+```
+
+---
+
+# 7. Results Table
+
+**Table Name:** `results`
+
+| Column     | Type    | Constraint  |
+| ---------- | ------- | ----------- |
+| id         | Integer | Primary Key |
+| student_id | Integer | Foreign Key |
+| exam_id    | Integer | Foreign Key |
+| score      | Integer | Not Null    |
+
+Stores final exam result permanently.
+
+---
+
+# Entity Relationship Diagram
+
+```
+                 USERS
+                   |
+                   |
+                   |
+               STUDENTS
+                   |
+                   |
+        -----------------------
+        |                     |
+        |                     |
+    ATTEMPTS              RESULTS
+        |
+        |
+      EXAMS
+        |
+        |
+    QUESTIONS
+        |
+        |
+     ANSWERS
+```
+
+# Relationships Summary
+
+## Student → Attempts
+
+```
+Student (1)
+      |
+      |
+Attempts (Many)
+```
+
+## Exam → Questions
+
+```
+Exam (1)
+     |
+     |
+Questions (Many)
+```
+
+## Attempt → Answers
+
+```
+Attempt (1)
+       |
+       |
+Answers (Many)
+```
+
+## Student + Exam → Result
+
+```
+Student
+   +
+Exam
+   |
+   |
+Result Generated
+```
+
+# Database Technology
+
+Database:
+
+```
+SQLite
+```
+
+ORM:
+
+```
+SQLAlchemy
+```
+
+Migration Support:
+
+```
+Alembic (Optional)
+```
